@@ -111,6 +111,8 @@ public class GoogleFitManager implements
     public void authorize(final Promise promise) {
         final ReactContext mReactContext = this.mReactContext;
 
+        final Promise mPromise = promise;
+
         mApiClient = new GoogleApiClient.Builder(mReactContext.getApplicationContext())
                 .addApi(Fitness.SENSORS_API)
                 .addApi(Fitness.HISTORY_API)
@@ -123,7 +125,7 @@ public class GoogleFitManager implements
                         @Override
                         public void onConnected(@Nullable Bundle bundle) {
                             Log.i(TAG, "Authorization - Connected");
-                            promise.resolve(null);
+                            mPromise.resolve(null);
                             sendEvent(mReactContext, "GoogleFitAuthorizeSuccess", null);
                         }
 
@@ -131,7 +133,7 @@ public class GoogleFitManager implements
                         public void onConnectionSuspended(int i) {
                             String message = "Authorization - Connection Suspended";
                             Log.i(TAG, message);
-                            promise.reject("GoogleFitAuthorizeFailure", message);
+                            mPromise.reject("GoogleFitAuthorizeFailure", message);
                             if ((mApiClient != null) && (mApiClient.isConnected())) {
                                 mApiClient.disconnect();
                             }
@@ -145,7 +147,7 @@ public class GoogleFitManager implements
                             WritableMap map = Arguments.createMap();
                             map.putString("message", "" + connectionResult);
                             sendEvent(mReactContext, "GoogleFitAuthorizeFailure", map);
-                            promise.reject("GoogleFitAuthorizeFailure", connectionResult.toString());
+                            mPromise.reject("GoogleFitAuthorizeFailure", connectionResult.toString());
                             Log.i(TAG, "Authorization - Failed Authorization Mgr:" + connectionResult);
                             if (mAuthInProgress) {
                                 Log.i(TAG, "Authorization - Already attempting to resolve an error.");
